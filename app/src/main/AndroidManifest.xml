@@ -9,7 +9,6 @@
         android:roundIcon="@drawable/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="false"
         android:theme="@style/Theme.FlingerBit">
 
         <activity
@@ -23,5 +22,4 @@
         </activity>
 
     </application>
-
 </manifest>
