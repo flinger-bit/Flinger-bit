@@ -1,70 +1,41 @@
 package com.flingerbit;
 
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.ForegroundColorSpan;
-
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public final class CodeHighlighter {
+    private CodeHighlighter() {}
 
-    private final int keywordColor;
-    private final int tagColor;
-    private final int stringColor;
-    private final int commentColor;
-
-    public CodeHighlighter(int keywordColor, int tagColor, int stringColor, int commentColor) {
-        this.keywordColor = keywordColor;
-        this.tagColor = tagColor;
-        this.stringColor = stringColor;
-        this.commentColor = commentColor;
-    }
-
-    public CharSequence highlight(LanguageSpec spec, String text) {
-        if (text == null) return "";
-        SpannableStringBuilder sb = new SpannableStringBuilder(text);
-
-        if (spec != null && "html".equals(spec.extension)) {
-            applyPattern(sb, Pattern.compile("<!--(.*?)-->", Pattern.DOTALL), commentColor);
-            applyPattern(sb, Pattern.compile("</?\\w+[^>]*>"), tagColor);
-            applyPattern(sb, Pattern.compile("\"[^\"]*\""), stringColor);
-            applyPattern(sb, Pattern.compile("'[^']*'"), stringColor);
-            return sb;
+    public static String escapeHtml(String value) {
+        if (value == null) {
+            return "";
         }
-
-        if (spec != null && "css".equals(spec.extension)) {
-            applyPattern(sb, Pattern.compile("/\\*(.*?)\\*/", Pattern.DOTALL), commentColor);
-            applyPattern(sb, Pattern.compile("\"[^\"]*\""), stringColor);
-            applyPattern(sb, Pattern.compile("'[^']*'"), stringColor);
-            return sb;
-        }
-
-        if (spec != null) {
-            List<String> keywords = spec.keywords;
-            for (String kw : keywords) {
-                applyWholeWord(sb, kw, keywordColor);
+        StringBuilder out = new StringBuilder(value.length() + 32);
+        for (char c : value.toCharArray()) {
+            switch (c) {
+                case '&': out.append("&amp;"); break;
+                case '<': out.append("&lt;"); break;
+                case '>': out.append("&gt;"); break;
+                case '"': out.append("&quot;"); break;
+                case '\'': out.append("&#39;"); break;
+                default: out.append(c);
             }
         }
-
-        applyPattern(sb, Pattern.compile("//.*?$", Pattern.MULTILINE), commentColor);
-        applyPattern(sb, Pattern.compile("/\\*(.*?)\\*/", Pattern.DOTALL), commentColor);
-        applyPattern(sb, Pattern.compile("\"[^\"]*\""), stringColor);
-        applyPattern(sb, Pattern.compile("'[^']*'"), stringColor);
-
-        return sb;
+        return out.toString();
     }
 
-    private static void applyPattern(SpannableStringBuilder sb, Pattern pattern, int color) {
-        Matcher matcher = pattern.matcher(sb);
-        while (matcher.find()) {
-            sb.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
-    private static void applyWholeWord(SpannableStringBuilder sb, String word, int color) {
-        Pattern p = Pattern.compile("\\b" + Pattern.quote(word) + "\\b");
-        applyPattern(sb, p, color);
+    public static String wrapDocument(String title, String bodyHtml) {
+        String safeTitle = escapeHtml(title);
+        return "<!doctype html>"
+                + "<html><head>"
+                + "<meta charset=\"UTF-8\">"
+                + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+                + "<title>" + safeTitle + "</title>"
+                + "<style>"
+                + "body{margin:0;padding:16px;background:#0b1020;color:#eef3ff;font-family:sans-serif;}"
+                + "h1,h2,p{margin:0 0 12px 0;}"
+                + "pre{white-space:pre-wrap;word-wrap:break-word;background:#111a33;padding:16px;border-radius:12px;}"
+                + "code{font-family:monospace;}"
+                + "</style>"
+                + "</head><body>"
+                + bodyHtml
+                + "</body></html>";
     }
 }
