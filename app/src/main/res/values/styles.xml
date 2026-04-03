@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.FlingerBit.Terminal" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/accent2</item>
+        <item name="android:fontFamily">monospace</item>
+    </style>
+</resources>
