@@ -2,6 +2,7 @@ package com.flingerbit;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public final class LanguageSpec {
     public final String extension;
@@ -16,8 +17,8 @@ public final class LanguageSpec {
         this.snippets = snippets;
     }
 
-    public static LanguageSpec forFile(String fileName) {
-        String lower = fileName == null ? "" : fileName.toLowerCase();
+    public static LanguageSpec fromFileName(String fileName) {
+        String lower = fileName == null ? "" : fileName.toLowerCase(Locale.ROOT);
 
         if (lower.endsWith(".html") || lower.endsWith(".htm")) {
             return new LanguageSpec(
