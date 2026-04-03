@@ -2,35 +2,24 @@ plugins {
     id 'com.android.application'
 }
 
+def releaseKeystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
+def releaseKeystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+def releaseKeyAlias = System.getenv("RELEASE_KEY_ALIAS")
+def releaseKeyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+
 android {
-    namespace "com.flingerbit"
+    namespace 'com.flingerbit'
     compileSdk 34
 
     defaultConfig {
         applicationId "com.flingerbit"
-        minSdk 21
+        minSdk 24
         targetSdk 34
         versionCode 1
-        versionName "1.0"
-    }
+        versionName "1.0.0"
 
-    signingConfigs {
-        release {
-            keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-            keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
-            storeFile = file("$rootDir/release-keystore.jks")
-            storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
-        }
-    }
-
-    buildTypes {
-        debug {
-            // usa la firma debug por defecto
-        }
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        vectorDrawables {
+            useSupportLibrary true
         }
     }
 
@@ -42,11 +31,37 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    signingConfigs {
+        release {
+            if (releaseKeystorePath && file(releaseKeystorePath).exists()) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+
+        release {
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            if (releaseKeystorePath && file(releaseKeystorePath).exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
 }
 
 dependencies {
-    implementation "androidx.core:core:1.13.1"
-    implementation "androidx.appcompat:appcompat:1.7.0"
-    implementation "com.google.android.material:material:1.12.0"
-    implementation "androidx.recyclerview:recyclerview:1.3.2"
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
 }
