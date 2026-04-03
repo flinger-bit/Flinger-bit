@@ -1,1 +1,13 @@
-
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Flinger-Bit</string>
+    <string name="hint_file_name">example.html</string>
+    <string name="hint_editor">Escribe tu código aquí...</string>
+    <string name="save">Guardar</string>
+    <string name="run">Ejecutar</string>
+    <string name="new_file">Nuevo</string>
+    <string name="suggestions_title">Sugerencias</string>
+    <string name="preview_title">Vista previa</string>
+    <string name="terminal_title">Terminal</string>
+    <string name="file_saved">Archivo guardado</string>
+</resources>
