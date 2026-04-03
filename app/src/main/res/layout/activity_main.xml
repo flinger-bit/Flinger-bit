@@ -44,40 +44,34 @@
             android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="@dimen/pad_small"
+            android:layout_weight="1"
             android:text="@string/save" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRun"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="@dimen/pad_small"
+            android:layout_weight="1"
             android:text="@string/run" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/pad_small"
-        android:text="@string/hint_editor"
-        android:textColor="@color/text" />
 
     <EditText
         android:id="@+id/codeEditor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/pad_small"
         android:layout_weight="3"
         android:background="@color/surface"
+        android:fontFamily="monospace"
         android:gravity="top|start"
         android:hint="@string/hint_editor"
         android:inputType="textMultiLine|textNoSuggestions"
-        android:fontFamily="monospace"
         android:padding="@dimen/pad"
+        android:scrollbars="vertical"
         android:textColor="@color/text"
-        android:textColorHint="@color/muted"
-        android:scrollbars="vertical" />
+        android:textColorHint="@color/muted" />
 
     <TextView
         android:layout_width="match_parent"
