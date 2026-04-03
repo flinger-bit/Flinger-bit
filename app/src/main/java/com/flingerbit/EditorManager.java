@@ -42,10 +42,9 @@ public final class EditorManager {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (internalUpdate) {
-                    return;
+                if (!internalUpdate) {
+                    refreshSuggestions();
                 }
-                refreshSuggestions();
             }
         });
 
@@ -53,7 +52,7 @@ public final class EditorManager {
     }
 
     public void setFileName(String fileName) {
-        this.fileName = fileName == null ? "" : fileName;
+        this.fileName = fileName == null ? "" : fileName.trim();
         refreshSuggestions();
     }
 
@@ -72,7 +71,6 @@ public final class EditorManager {
         if (editor == null) {
             return;
         }
-
         internalUpdate = true;
         editor.setText(text == null ? "" : text);
         editor.setSelection(editor.length());
@@ -84,12 +82,10 @@ public final class EditorManager {
         if (editor == null || insertion == null) {
             return;
         }
-
         Editable editable = editor.getText();
         if (editable == null) {
             return;
         }
-
         int start = Math.max(0, editor.getSelectionStart());
         int end = Math.max(0, editor.getSelectionEnd());
         editable.replace(Math.min(start, end), Math.max(start, end), insertion);
@@ -99,10 +95,8 @@ public final class EditorManager {
         if (editor == null || adapter == null) {
             return;
         }
-
         int cursor = Math.max(0, editor.getSelectionStart());
         List<SuggestionEngine.Suggestion> suggestions = suggestionEngine.suggest(fileName, getText(), cursor);
-
         items.clear();
         items.addAll(suggestions);
         adapter.notifyDataSetChanged();
@@ -132,7 +126,6 @@ public final class EditorManager {
             SuggestionEngine.Suggestion item = data.get(position);
             holder.binding.title.setText(item.title);
             holder.binding.subtitle.setText(item.subtitle);
-
             holder.binding.getRoot().setOnClickListener(v -> {
                 if (onSuggestionTap != null && item.insertText != null && !item.insertText.isEmpty()) {
                     onSuggestionTap.onTap(item.insertText);
