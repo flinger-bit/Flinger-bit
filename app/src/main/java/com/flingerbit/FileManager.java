@@ -3,9 +3,10 @@ package com.flingerbit;
 import android.content.Context;
 import android.os.Environment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -34,20 +35,31 @@ public final class FileManager {
         return new File(getProjectDir(), fileName);
     }
 
-    public void save(String fileName, String content) throws IOException {
+    public void save(String fileName, String content) throws Exception {
         File file = resolve(fileName);
         File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) parent.mkdirs();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
 
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
             fos.write(content.getBytes(StandardCharsets.UTF_8));
         }
     }
 
-    public String read(String fileName) throws IOException {
+    public String read(String fileName) throws Exception {
         File file = resolve(fileName);
         if (!file.exists()) return "";
-        return new String(java.nio.file.Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+
+        try (FileInputStream fis = new FileInputStream(file);
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int read;
+            while ((read = fis.read(buffer)) != -1) {
+                baos.write(buffer, 0, read);
+            }
+            return baos.toString(StandardCharsets.UTF_8.name());
+        }
     }
 
     public String templateFor(String fileName) {
@@ -86,7 +98,11 @@ public final class FileManager {
         }
 
         if (lower.endsWith(".xml")) {
-            return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:orientation=\"vertical\" />\n";
+            return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                    "<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                    "    android:layout_width=\"match_parent\"\n" +
+                    "    android:layout_height=\"match_parent\"\n" +
+                    "    android:orientation=\"vertical\" />\n";
         }
 
         if (lower.endsWith(".py")) {
@@ -104,22 +120,11 @@ public final class FileManager {
         }
 
         if (lower.endsWith(".css")) {
-            String safeCss = escapeForStyle(code);
-            return "<!DOCTYPE html>\n" +
-                    "<html lang=\"es\">\n" +
-                    "<head>\n" +
-                    "    <meta charset=\"UTF-8\">\n" +
-                    "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                    "    <style>\n" + safeCss + "\n    </style>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "    <div class=\"card\">\n" +
-                    "        <h1>CSS Preview</h1>\n" +
-                    "        <p>Vista previa generada dentro de la app.</p>\n" +
-                    "        <button>Botón</button>\n" +
-                    "    </div>\n" +
-                    "</body>\n" +
-                    "</html>";
+            return wrapHtml(
+                    "CSS Preview",
+                    "<style>\n" + escapeForStyle(code) + "\n</style>\n" +
+                            "<div class=\"card\"><h1>CSS Preview</h1><p>Vista previa generada dentro de la app.</p><button>Botón</button></div>"
+            );
         }
 
         if (lower.endsWith(".js")) {
@@ -140,7 +145,9 @@ public final class FileManager {
                     "    <pre id=\"out\">Ejecutando...</pre>\n" +
                     "    <script>\n" +
                     "        const out = document.getElementById('out');\n" +
-                    "        console.log = (...args) => { out.textContent += '\\n' + args.join(' '); };\n" +
+                    "        const log = (...args) => { out.textContent += '\\n' + args.join(' '); };\n" +
+                    "        console.log = log;\n" +
+                    "        console.error = log;\n" +
                     "        window.onerror = function(message, source, line, col) {\n" +
                     "            out.textContent = 'ERROR: ' + message + ' (' + line + ':' + col + ')';\n" +
                     "            return true;\n" +
@@ -155,38 +162,46 @@ public final class FileManager {
                     "</html>";
         }
 
+        return wrapHtml("Preview", "<pre>" + escapeHtml(code) + "</pre>");
+    }
+
+    private static String wrapHtml(String title, String body) {
         return "<!DOCTYPE html>\n" +
                 "<html lang=\"es\">\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <title>Preview</title>\n" +
+                "    <title>" + escapeHtml(title) + "</title>\n" +
                 "    <style>\n" +
                 "        body { font-family: sans-serif; background: #0b1020; color: #eef3ff; padding: 16px; }\n" +
+                "        .card { background: #111a33; padding: 16px; border-radius: 16px; }\n" +
                 "        pre { white-space: pre-wrap; background: #111a33; padding: 12px; border-radius: 12px; }\n" +
+                "        button { padding: 10px 16px; border: 0; border-radius: 12px; }\n" +
                 "    </style>\n" +
                 "</head>\n" +
-                "<body>\n" +
-                "    <h1>Preview</h1>\n" +
-                "    <pre>" + escapeHtml(code) + "</pre>\n" +
-                "</body>\n" +
-                "</html>";
+                "<body>\n" + body + "\n</body>\n</html>";
     }
 
     private static String escapeHtml(String value) {
-        if (value == null) return "";
+        if (value == null) {
+            return "";
+        }
         return value.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;");
     }
 
     private static String escapeForScript(String value) {
-        if (value == null) return "";
+        if (value == null) {
+            return "";
+        }
         return value.replace("</script>", "<\\/script>");
     }
 
     private static String escapeForStyle(String value) {
-        if (value == null) return "";
+        if (value == null) {
+            return "";
+        }
         return value.replace("</style>", "<\\/style>");
     }
-            }
+}
