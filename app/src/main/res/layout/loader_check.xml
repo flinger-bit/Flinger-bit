@@ -1,14 +1,15 @@
-<!-- res/layout/loader.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFFFF">
+    android:background="@android:color/transparent">
 
     <ProgressBar
-        android:id="@+id/progress_loader"
+        android:id="@+id/internet_loader"
+        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:visibility="visible" />
 
 </FrameLayout>
