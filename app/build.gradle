@@ -1,60 +1,9 @@
-plugins {
-    id 'com.android.application'
-}
-
 android {
-    namespace 'com.flingerbit'
-    compileSdk 34
+    ...
 
-    defaultConfig {
-        applicationId "com.flingerbit"
-        minSdk 24
-        targetSdk 34
-        versionCode 1
-        versionName "1.0.0"
-
-        vectorDrawables {
-            useSupportLibrary true
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
         }
     }
-
-    buildFeatures {
-        viewBinding true
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    signingConfigs {
-        release {
-            def path = System.getenv("RELEASE_KEYSTORE_PATH")
-            if (path != null && file(path).exists()) {
-                storeFile file(path)
-                storePassword System.getenv("RELEASE_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("RELEASE_KEY_ALIAS")
-                keyPassword System.getenv("RELEASE_KEY_PASSWORD")
-            }
-        }
-    }
-
-    buildTypes {
-        debug {
-            debuggable true
-        }
-
-        release {
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-    }
-}
-
-dependencies {
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
 }
