@@ -1,1 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:padding="@dimen/pad">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/text"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light" />
+
+    <EditText
+        android:id="@+id/fileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pad"
+        android:backgroundTint="@color/accent"
+        android:hint="@string/hint_file_name"
+        android:inputType="text"
+        android:padding="@dimen/pad_small"
+        android:textColor="@color/text"
+        android:textColorHint="@color/muted" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pad_small"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNew"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/new_file" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/pad_small"
+            android:text="@string/save" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRun"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/pad_small"
+            android:text="@string/run" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pad_small"
+        android:text="@string/hint_editor"
+        android:textColor="@color/text" />
+
+    <EditText
+        android:id="@+id/codeEditor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="@color/surface"
+        android:gravity="top|start"
+        android:hint="@string/hint_editor"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:fontFamily="monospace"
+        android:padding="@dimen/pad"
+        android:textColor="@color/text"
+        android:textColorHint="@color/muted"
+        android:scrollbars="vertical" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pad_small"
+        android:text="@string/suggestions_title"
+        android:textColor="@color/text" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/suggestionList"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/surface2"
+        android:padding="@dimen/pad_small" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pad_small"
+        android:text="@string/preview_title"
+        android:textColor="@color/text" />
+
+    <WebView
+        android:id="@+id/previewWebView"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="@color/surface"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pad_small"
+        android:text="@string/terminal_title"
+        android:textColor="@color/text" />
+
+    <TextView
+        android:id="@+id/terminal"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/surface"
+        android:fontFamily="monospace"
+        android:padding="@dimen/pad_small"
+        android:textColor="@color/accent2"
+        android:textIsSelectable="true" />
+
+</LinearLayout>
