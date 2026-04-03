@@ -2,7 +2,7 @@ name: Android Build
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
   pull_request:
   workflow_dispatch:
 
@@ -12,13 +12,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      # Keystore base64 y passwords vienen de Github Secrets
-      RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -33,9 +26,6 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
-        with:
-          # Por defecto instala tools y platform-tools
-          packages: ''
 
       - name: Install API 34 & Build Tools
         run: |
@@ -44,37 +34,47 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Show project tree
+        run: ls -R
+
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug
+        run: ./gradlew assembleDebug --stacktrace --info
 
       - name: List debug output
-        run: find app/build/outputs -type f | sort || true
-
-      - name: Decode release keystore
-        if: github.event_name != 'pull_request'
-        run: printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release-keystore.jks
-
-      - name: Build Release APK
-        if: github.event_name != 'pull_request'
-        run: ./gradlew :app:assembleRelease
-        env:
-          RELEASE_KEYSTORE_PATH: ${{ github.workspace }}/release-keystore.jks
-
-      - name: List release output
-        if: github.event_name != 'pull_request'
         run: find app/build/outputs -type f | sort || true
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: flingerbit-debug-apk
-          path: app/build/outputs/**/*.apk
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
+      - name: Decode release keystore
+        if: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          RELEASE_KEYSTORE_PATH: ${{ github.workspace }}/release-keystore.jks
+        run: |
+          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RELEASE_KEYSTORE_PATH"
+          chmod 600 "$RELEASE_KEYSTORE_PATH"
+
+      - name: Build Release APK
+        if: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --stacktrace --info
+
+      - name: List release output
+        if: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: find app/build/outputs -type f | sort || true
+
       - name: Upload release APK
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: flingerbit-release-apk
-          path: app/build/outputs/**/*.apk
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
